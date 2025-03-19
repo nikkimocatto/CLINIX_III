@@ -1,0 +1,268 @@
+# app.py - Flask backend for Medical Chart application
+from flask import Flask, request, jsonify, render_template, url_for
+import sqlite3
+import os
+import json
+from datetime import datetime
+import uuid
+
+app = Flask(__name__)
+
+# Database setup
+def init_db():
+    conn = sqlite3.connect('medical_charts.db')
+    cursor = conn.cursor()
+    
+    # Create table if it doesn't exist
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS charts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chart_id TEXT UNIQUE,
+        first_name TEXT NOT NULL,
+        last_name TEXT NOT NULL,
+        chart_date TEXT,
+        vitals TEXT,
+        gender TEXT,
+        dob TEXT,
+        present_illness TEXT,
+        past_medical TEXT,
+        allergies TEXT,
+        family_history TEXT,
+        social_history TEXT,
+        physical_exam TEXT,
+        diagnosis TEXT,
+        plan TEXT,
+        follow_up INTEGER,
+        date_added TEXT,
+        last_edited TEXT
+    )
+    ''')
+    
+    conn.commit()
+    conn.close()
+
+# Initialize database on startup
+@app.before_first_request
+def before_first_request():
+    init_db()
+    
+    # Create static folder if it doesn't exist
+    if not os.path.exists('static'):
+        os.makedirs('static')
+    
+    # CSS and JS files are created separately
+
+# Routes
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/save-chart', methods=['POST'])
+def save_chart():
+    try:
+        data = request.json
+        
+        # Generate a unique chart ID if it doesn't exist
+        chart_id = data.get('chartId') or str(uuid.uuid4())
+        
+        conn = sqlite3.connect('medical_charts.db')
+        cursor = conn.cursor()
+        
+        # Check if chart already exists
+        cursor.execute("SELECT id FROM charts WHERE chart_id = ?", (chart_id,))
+        existing_chart = cursor.fetchone()
+        
+        current_time = datetime.now().isoformat()
+        
+        if existing_chart:
+            # Update existing chart
+            cursor.execute('''
+            UPDATE charts SET
+                first_name = ?,
+                last_name = ?,
+                chart_date = ?,
+                vitals = ?,
+                gender = ?,
+                dob = ?,
+                present_illness = ?,
+                past_medical = ?,
+                allergies = ?,
+                family_history = ?,
+                social_history = ?,
+                physical_exam = ?,
+                diagnosis = ?,
+                plan = ?,
+                follow_up = ?,
+                last_edited = ?
+            WHERE chart_id = ?
+            ''', (
+                data['firstName'],
+                data['lastName'],
+                data['chartDate'],
+                json.dumps(data['vitals']),
+                data['gender'],
+                data['dob'],
+                data['presentIllness'],
+                data['pastMedical'],
+                data['allergies'],
+                data['familyHistory'],
+                data['socialHistory'],
+                data['physicalExam'],
+                data['diagnosis'],
+                data['plan'],
+                1 if data['followUp'] else 0,
+                current_time,
+                chart_id
+            ))
+        else:
+            # Insert new chart
+            cursor.execute('''
+            INSERT INTO charts (
+                chart_id,
+                first_name,
+                last_name,
+                chart_date,
+                vitals,
+                gender,
+                dob,
+                present_illness,
+                past_medical,
+                allergies,
+                family_history,
+                social_history,
+                physical_exam,
+                diagnosis,
+                plan,
+                follow_up,
+                date_added,
+                last_edited
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                chart_id,
+                data['firstName'],
+                data['lastName'],
+                data['chartDate'],
+                json.dumps(data['vitals']),
+                data['gender'],
+                data['dob'],
+                data['presentIllness'],
+                data['pastMedical'],
+                data['allergies'],
+                data['familyHistory'],
+                data['socialHistory'],
+                data['physicalExam'],
+                data['diagnosis'],
+                data['plan'],
+                1 if data['followUp'] else 0,
+                current_time,
+                current_time
+            ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'success': True,
+            'chartId': chart_id,
+            'message': 'Chart saved successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/get-chart/<chart_id>', methods=['GET'])
+def get_chart(chart_id):
+    try:
+        conn = sqlite3.connect('medical_charts.db')
+        conn.row_factory = sqlite3.Row  # This enables column access by name
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        SELECT * FROM charts WHERE chart_id = ?
+        ''', (chart_id,))
+        
+        chart = cursor.fetchone()
+        conn.close()
+        
+        if chart:
+            chart_dict = dict(chart)
+            chart_dict['vitals'] = json.loads(chart_dict['vitals'])
+            chart_dict['follow_up'] = bool(chart_dict['follow_up'])
+            
+            return jsonify({
+                'success': True,
+                'chart': chart_dict
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Chart not found'
+            }), 404
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/get-all-charts', methods=['GET'])
+def get_all_charts():
+    try:
+        conn = sqlite3.connect('medical_charts.db')
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+        SELECT chart_id, first_name, last_name, chart_date, date_added, last_edited 
+        FROM charts ORDER BY last_edited DESC
+        ''')
+        
+        charts = cursor.fetchall()
+        conn.close()
+        
+        charts_list = [dict(chart) for chart in charts]
+        
+        return jsonify({
+            'success': True,
+            'charts': charts_list
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+@app.route('/delete-chart/<chart_id>', methods=['DELETE'])
+def delete_chart(chart_id):
+    try:
+        conn = sqlite3.connect('medical_charts.db')
+        cursor = conn.cursor()
+        
+        cursor.execute('DELETE FROM charts WHERE chart_id = ?', (chart_id,))
+        
+        if cursor.rowcount > 0:
+            conn.commit()
+            conn.close()
+            return jsonify({
+                'success': True,
+                'message': 'Chart deleted successfully'
+            })
+        else:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'message': 'Chart not found'
+            }), 404
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        }), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)

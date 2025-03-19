@@ -1,0 +1,242 @@
+/* Medical Chart CSS */
+:root {
+    --light-pink: #fff0f0;
+    --border-color: #ccc;
+    --text-color: #333;
+    --section-spacing: 20px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    padding: 20px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.chart-container {
+    width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 30px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styles */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.date-field {
+    display: flex;
+    align-items: center;
+}
+
+.date-field input {
+    border: none;
+    border-bottom: 1px solid var(--border-color);
+    margin-left: 5px;
+    width: 150px;
+    padding: 5px 0;
+}
+
+/* Patient Info Section */
+.patient-info {
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--section-spacing);
+}
+
+.patient-name {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.field {
+    padding: 10px;
+}
+
+.patient-name .field {
+    background-color: var(--light-pink);
+}
+
+.field label {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.field input, textarea {
+    width: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+.patient-details {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+}
+
+.vitals {
+    padding: 10px;
+}
+
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.vitals-grid-secondary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.patient-additional {
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-additional .field {
+    background-color: var(--light-pink);
+    flex: 1;
+}
+
+.dob-inputs {
+    display: flex;
+    align-items: center;
+}
+
+.dob-inputs input {
+    width: 40px;
+    text-align: center;
+}
+
+.dob-inputs input#dob-year {
+    width: 60px;
+}
+
+.dob-inputs span {
+    margin: 0 5px;
+}
+
+/* Content Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--section-spacing);
+}
+
+.left-column, .right-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--section-spacing);
+}
+
+/* Section Boxes */
+.section-box {
+    border: 1px solid var(--border-color);
+    height: auto;
+}
+
+.left-column .section-box:first-child,
+.right-column .section-box:first-child {
+    height: 170px;
+}
+
+.section-box h2 {
+    font-size: 12px;
+    font-weight: bold;
+    padding: 10px;
+    background-color: var(--light-pink);
+}
+
+.section-box textarea {
+    width: 100%;
+    height: 90%;
+    border: none;
+    padding: 10px;
+    resize: none;
+}
+
+/* Right Column Specifics */
+.right-column .section-box {
+    flex: 1;
+    background-color: var(--light-pink);
+}
+
+.right-column .section-box textarea {
+    background-color: transparent;
+}
+
+.diagnosis-section {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+
+.plan-subsection {
+    margin-top: auto;
+    padding-top: 20px;
+}
+
+.plan-subsection h2 {
+    background-color: transparent;
+    padding-bottom: 0;
+}
+
+.follow-up {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-top: auto;
+}
+
+.follow-up-line {
+    flex: 1;
+    height: 1px;
+    border-bottom: 1px solid var(--border-color);
+    margin-left: 10px;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.controls button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.controls button:hover {
+    opacity: 0.9;
+}
+
+#clear-btn {
+    background-color: #f44336;
+}

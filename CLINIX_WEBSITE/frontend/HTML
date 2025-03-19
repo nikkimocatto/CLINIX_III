@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Chart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="chart-container">
+        <!-- Header Section -->
+        <header>
+            <h1>MEDICAL CHART</h1>
+            <div class="date-field">
+                <label for="chart-date">DATE: </label>
+                <input type="text" id="chart-date" name="chart-date">
+            </div>
+        </header>
+
+        <!-- Patient Information & Vitals Section -->
+        <section class="patient-info">
+            <div class="patient-name">
+                <div class="field">
+                    <label for="first-name">PATIENT FIRST NAME</label>
+                    <input type="text" id="first-name" name="first-name" required>
+                </div>
+                <div class="field">
+                    <label for="last-name">LAST NAME</label>
+                    <input type="text" id="last-name" name="last-name" required>
+                </div>
+            </div>
+
+            <div class="patient-details">
+                <div class="vitals">
+                    <label>VITALS</label>
+                    <div class="vitals-grid">
+                        <div class="field">
+                            <label for="bp">BP</label>
+                            <input type="text" id="bp" name="bp">
+                        </div>
+                        <div class="field">
+                            <label for="temperature">T</label>
+                            <input type="text" id="temperature" name="temperature">
+                        </div>
+                        <div class="field">
+                            <label for="pulse">P</label>
+                            <input type="text" id="pulse" name="pulse">
+                        </div>
+                        <div class="field">
+                            <label for="respiratory">R</label>
+                            <input type="text" id="respiratory" name="respiratory">
+                        </div>
+                    </div>
+                    <div class="vitals-grid-secondary">
+                        <div class="field">
+                            <label for="height">Height</label>
+                            <input type="text" id="height" name="height">
+                        </div>
+                        <div class="field">
+                            <label for="weight">Weight</label>
+                            <input type="text" id="weight" name="weight">
+                        </div>
+                        <div class="field">
+                            <label for="bmi">BMI</label>
+                            <input type="text" id="bmi" name="bmi" readonly>
+                        </div>
+                        <div class="field">
+                            <label for="oxygen">O2</label>
+                            <input type="text" id="oxygen" name="oxygen">
+                        </div>
+                    </div>
+                </div>
+                <div class="patient-additional">
+                    <div class="field">
+                        <label for="gender">GENDER</label>
+                        <input type="text" id="gender" name="gender">
+                    </div>
+                    <div class="field">
+                        <label for="dob">DOB</label>
+                        <div class="dob-inputs">
+                            <input type="text" id="dob-month" name="dob-month" placeholder="" maxlength="2">
+                            <span>/</span>
+                            <input type="text" id="dob-day" name="dob-day" placeholder="" maxlength="2">
+                            <span>/</span>
+                            <input type="text" id="dob-year" name="dob-year" placeholder="" maxlength="4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- History of Present Illness -->
+                <section class="section-box">
+                    <h2>HISTORY OF PRESENT ILLNESS</h2>
+                    <textarea id="present-illness" name="present-illness"></textarea>
+                </section>
+
+                <!-- Past Medical History -->
+                <section class="section-box">
+                    <h2>PAST MEDICAL HISTORY</h2>
+                    <textarea id="past-medical" name="past-medical"></textarea>
+                </section>
+
+                <!-- Allergies / Medication History -->
+                <section class="section-box">
+                    <h2>ALLERGIES / MEDICATION HISTORY</h2>
+                    <textarea id="allergies" name="allergies"></textarea>
+                </section>
+
+                <!-- Family History -->
+                <section class="section-box">
+                    <h2>FAMILY HISTORY</h2>
+                    <textarea id="family-history" name="family-history"></textarea>
+                </section>
+
+                <!-- Social History -->
+                <section class="section-box">
+                    <h2>SOCIAL HISTORY</h2>
+                    <textarea id="social-history" name="social-history"></textarea>
+                </section>
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <!-- Physical Exam -->
+                <section class="section-box">
+                    <h2>PHYSICAL EXAM</h2>
+                    <textarea id="physical-exam" name="physical-exam"></textarea>
+                </section>
+
+                <!-- Diagnosis & Plan -->
+                <section class="section-box diagnosis-section">
+                    <h2>DIAGNOSIS</h2>
+                    <textarea id="diagnosis" name="diagnosis"></textarea>
+                    
+                    <div class="plan-subsection">
+                        <h2>PLAN</h2>
+                        <textarea id="plan" name="plan"></textarea>
+                    </div>
+                    
+                    <div class="follow-up">
+                        <label for="follow-up">
+                            <input type="checkbox" id="follow-up" name="follow-up">
+                            Follow up
+                        </label>
+                        <div class="follow-up-line"></div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="save-btn">Save Chart</button>
+        <button id="clear-btn">Clear Form</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

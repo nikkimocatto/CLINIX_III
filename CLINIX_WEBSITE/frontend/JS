@@ -1,0 +1,197 @@
+// Medical Chart JavaScript functionality
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize date field with current date
+    const today = new Date();
+    const dateField = document.getElementById('chart-date');
+    dateField.value = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+    
+    // BMI Calculation
+    const heightInput = document.getElementById('height');
+    const weightInput = document.getElementById('weight');
+    const bmiInput = document.getElementById('bmi');
+    
+    function calculateBMI() {
+        if (heightInput.value && weightInput.value) {
+            // Assuming height in inches and weight in pounds
+            const height = parseFloat(heightInput.value);
+            const weight = parseFloat(weightInput.value);
+            
+            if (!isNaN(height) && !isNaN(weight) && height > 0) {
+                const bmi = (weight / (height * height)) * 703;
+                bmiInput.value = bmi.toFixed(1);
+            }
+        }
+    }
+    
+    heightInput.addEventListener('input', calculateBMI);
+    weightInput.addEventListener('input', calculateBMI);
+    
+    // Form validation
+    const saveButton = document.getElementById('save-btn');
+    const clearButton = document.getElementById('clear-btn');
+    const form = document.querySelector('.chart-container');
+    
+    saveButton.addEventListener('click', function() {
+        const firstName = document.getElementById('first-name').value.trim();
+        const lastName = document.getElementById('last-name').value.trim();
+        
+        if (!firstName || !lastName) {
+            alert('Patient first name and last name are required.');
+            return;
+        }
+        
+        // Save data to localStorage
+        saveToLocalStorage();
+        
+        // Submit data to server
+        submitToServer();
+    });
+    
+    clearButton.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all form data?')) {
+            clearForm();
+        }
+    });
+    
+    // Save data to localStorage
+    function saveToLocalStorage() {
+        const formData = collectFormData();
+        localStorage.setItem('medicalChart', JSON.stringify(formData));
+        alert('Chart saved to local storage.');
+    }
+    
+    // Submit data to server
+    function submitToServer() {
+        const formData = collectFormData();
+        
+        fetch('/save-chart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Chart saved successfully!');
+            } else {
+                alert('Error saving chart: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to save chart. Please try again.');
+        });
+    }
+    
+    // Collect all form data
+    function collectFormData() {
+        return {
+            chartDate: document.getElementById('chart-date').value,
+            firstName: document.getElementById('first-name').value,
+            lastName: document.getElementById('last-name').value,
+            vitals: {
+                bp: document.getElementById('bp').value,
+                temperature: document.getElementById('temperature').value,
+                pulse: document.getElementById('pulse').value,
+                respiratory: document.getElementById('respiratory').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                bmi: document.getElementById('bmi').value,
+                oxygen: document.getElementById('oxygen').value
+            },
+            gender: document.getElementById('gender').value,
+            dob: `${document.getElementById('dob-month').value}/${document.getElementById('dob-day').value}/${document.getElementById('dob-year').value}`,
+            presentIllness: document.getElementById('present-illness').value,
+            pastMedical: document.getElementById('past-medical').value,
+            allergies: document.getElementById('allergies').value,
+            familyHistory: document.getElementById('family-history').value,
+            socialHistory: document.getElementById('social-history').value,
+            physicalExam: document.getElementById('physical-exam').value,
+            diagnosis: document.getElementById('diagnosis').value,
+            plan: document.getElementById('plan').value,
+            followUp: document.getElementById('follow-up').checked,
+            dateAdded: new Date().toISOString(),
+            lastEdited: new Date().toISOString()
+        };
+    }
+    
+    // Clear form
+    function clearForm() {
+        document.getElementById('first-name').value = '';
+        document.getElementById('last-name').value = '';
+        document.getElementById('bp').value = '';
+        document.getElementById('temperature').value = '';
+        document.getElementById('pulse').value = '';
+        document.getElementById('respiratory').value = '';
+        document.getElementById('height').value = '';
+        document.getElementById('weight').value = '';
+        document.getElementById('bmi').value = '';
+        document.getElementById('oxygen').value = '';
+        document.getElementById('gender').value = '';
+        document.getElementById('dob-month').value = '';
+        document.getElementById('dob-day').value = '';
+        document.getElementById('dob-year').value = '';
+        document.getElementById('present-illness').value = '';
+        document.getElementById('past-medical').value = '';
+        document.getElementById('allergies').value = '';
+        document.getElementById('family-history').value = '';
+        document.getElementById('social-history').value = '';
+        document.getElementById('physical-exam').value = '';
+        document.getElementById('diagnosis').value = '';
+        document.getElementById('plan').value = '';
+        document.getElementById('follow-up').checked = false;
+    }
+    
+    // Check for saved data in localStorage and load if available
+    function loadFromLocalStorage() {
+        const savedData = localStorage.getItem('medicalChart');
+        
+        if (savedData) {
+            const formData = JSON.parse(savedData);
+            
+            // Populate form fields with saved data
+            document.getElementById('chart-date').value = formData.chartDate || '';
+            document.getElementById('first-name').value = formData.firstName || '';
+            document.getElementById('last-name').value = formData.lastName || '';
+            
+            if (formData.vitals) {
+                document.getElementById('bp').value = formData.vitals.bp || '';
+                document.getElementById('temperature').value = formData.vitals.temperature || '';
+                document.getElementById('pulse').value = formData.vitals.pulse || '';
+                document.getElementById('respiratory').value = formData.vitals.respiratory || '';
+                document.getElementById('height').value = formData.vitals.height || '';
+                document.getElementById('weight').value = formData.vitals.weight || '';
+                document.getElementById('bmi').value = formData.vitals.bmi || '';
+                document.getElementById('oxygen').value = formData.vitals.oxygen || '';
+            }
+            
+            document.getElementById('gender').value = formData.gender || '';
+            
+            // Handle DOB
+            if (formData.dob) {
+                const dobParts = formData.dob.split('/');
+                if (dobParts.length === 3) {
+                    document.getElementById('dob-month').value = dobParts[0];
+                    document.getElementById('dob-day').value = dobParts[1];
+                    document.getElementById('dob-year').value = dobParts[2];
+                }
+            }
+            
+            document.getElementById('present-illness').value = formData.presentIllness || '';
+            document.getElementById('past-medical').value = formData.pastMedical || '';
+            document.getElementById('allergies').value = formData.allergies || '';
+            document.getElementById('family-history').value = formData.familyHistory || '';
+            document.getElementById('social-history').value = formData.socialHistory || '';
+            document.getElementById('physical-exam').value = formData.physicalExam || '';
+            document.getElementById('diagnosis').value = formData.diagnosis || '';
+            document.getElementById('plan').value = formData.plan || '';
+            document.getElementById('follow-up').checked = formData.followUp || false;
+        }
+    }
+    
+    // Load saved data on page load
+    loadFromLocalStorage();
+});
